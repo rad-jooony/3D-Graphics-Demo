@@ -1,0 +1,22 @@
+TODO
+-----------
+next steps:
+
+Create the gridded terrain mesh
+OR
+Create Skybox
+
+------------
+to do for hand in:
+
+Rednering a gridded mesh for terrain
+lighting and shading
+skybox
+
+Code Structure
+
+----
+Done:
+
+Creating and redering a cube
+Rendering a 3D model

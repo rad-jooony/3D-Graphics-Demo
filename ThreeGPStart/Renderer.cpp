@@ -69,7 +69,6 @@ bool Renderer::CreateProgram()
 
 	return true;
 }
-
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
 {
@@ -184,14 +183,13 @@ bool Renderer::InitialiseGeometry()
 		glm::vec3(-2.231, 0.272, -2.663),	//wing_right
 		glm::vec3(0, 1.295, -3.616), 		//propeller
 	};
-
 	std::vector<glm::vec3> AquaPigRotation = {
 		glm::vec3(0, 0, 0),	//hull
 		glm::vec3(0, 0 ,0),	//gun_base
 		glm::vec3(0, 0, 0),	//gun --- manually applied after gunbase
 		glm::vec3(0, 0, 0),	//wing_left
 		glm::vec3(0, 0, 0),	//wing_right
-		glm::vec3(90, 0, 0), //propeller
+		glm::vec3(1.5708, 0, 0), //propeller //angle is Radian conversion
 	};
 
 	for (int i = 0; i < AquaPigObjects.size(); i++)
@@ -303,19 +301,18 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	GLuint combined_xform_id = glGetUniformLocation(m_program, "combined_xform");
 	glUniformMatrix4fv(combined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
 
-
-
-	// Render each mesh. Send the correct model matrix to the shader in a uniform
-
-
-	// Bind our VAO and render
+	//Render the AquaPig
 	for (int i = 0; i < modelVector.size(); i++)
 	{
 		glm::mat4 model_xform = glm::mat4(1);
 		model_xform = glm::translate(model_xform, modelVector[i].m_translation);
-		//model_xform = glm::rotate(model_xform, modelVector[i].m_rotation, );)
-		// todo
-		/// look at the cube framework to see about translation
+		model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.x, { 1 , 0 , 0 });
+		static float angle = 0; angle += 0.0001f;
+		if (i == 5)
+		{
+			model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
+		}
+
 		GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
 		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
 

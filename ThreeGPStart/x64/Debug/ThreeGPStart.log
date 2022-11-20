@@ -1,3 +1,0 @@
-﻿  Renderer.cpp
-C:\Users\b1634101\Source\repos\Framework\Framework\ThreeGPStart\Renderer.cpp(226,49): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
-  ThreeGPStart.vcxproj -> C:\Users\b1634101\Source\repos\Framework\Framework\x64\Debug\ThreeGPStart.exe
