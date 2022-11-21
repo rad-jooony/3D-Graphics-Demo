@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Camera.h"
+#include "ImageLoader.h"
 
 Renderer::Renderer()
 {
@@ -174,7 +175,6 @@ bool Renderer::InitialiseGeometry()
 		"Data\\Models\\AquaPig\\wing_right.obj",
 		"Data\\Models\\AquaPig\\propeller.obj",
 	};
-
 	std::vector<glm::vec3> AquaPigTranslation = {
 		glm::vec3(0, 0, 0),			//hull
 		glm::vec3(0, 0.569, -1.866),		//gun_base
@@ -192,6 +192,16 @@ bool Renderer::InitialiseGeometry()
 		glm::vec3(1.5708, 0, 0), //propeller //angle is Radian conversion
 	};
 
+
+	// TODO
+	Helpers::ImageLoader AquaPig1K;
+	if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K"))
+	{
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	}
 	for (int i = 0; i < AquaPigObjects.size(); i++)
 	{
 		Helpers::ModelLoader loaderPig;
