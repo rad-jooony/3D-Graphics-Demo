@@ -167,6 +167,8 @@ bool Renderer::InitialiseGeometry()
 		glBindVertexArray(0);
 	}
 	*/
+
+
 	std::vector<std::string> AquaPigObjects = {
 		"Data\\Models\\AquaPig\\hull.obj",
 		"Data\\Models\\AquaPig\\gun_base.obj",
@@ -193,15 +195,7 @@ bool Renderer::InitialiseGeometry()
 	};
 
 
-	// TODO
 	Helpers::ImageLoader AquaPig1K;
-	if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K"))
-	{
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-	}
 	for (int i = 0; i < AquaPigObjects.size(); i++)
 	{
 		Helpers::ModelLoader loaderPig;
@@ -237,6 +231,14 @@ bool Renderer::InitialiseGeometry()
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.elements.size(), mesh.elements.data(), GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+
+			GLuint texCoordsVBO;
+			glGenBuffers(1, &texCoordsVBO);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texCoordsVBO);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.uvCoords.size(), mesh.uvCoords.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
 			newModel.m_numElements = mesh.elements.size();
 
 			glGenVertexArrays(1, &newModel.m_VAO);
@@ -262,14 +264,40 @@ bool Renderer::InitialiseGeometry()
 				0, // stride
 				(void*)0 // array buffer offset
 			);
+
+			glBindBuffer(GL_ARRAY_BUFFER, texCoordsVBO);
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(
+				1, //attribute
+				2, //num of componants
+				GL_FLOAT, //type
+				GL_FALSE, // ignore this
+				0, // stride
+				(void*)0 // array buffer offset
+			);
+
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
 
 			glBindVertexArray(0);
 
 			modelVector.push_back(newModel);
 
+			if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K"))
+			{
+				glGenTextures(1, &newModel.m_tex);
+				glBindTexture(GL_TEXTURE_2D, newModel.m_tex);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, AquaPig1K.Width(), AquaPig1K.Height(), 0,
+					GL_RGBA, GL_UNSIGNED_BYTE, AquaPig1K.GetData());
+				glGenerateMipmap(GL_TEXTURE_2D);
+			}
 		}
+
+
 	}
 	return true;
 }
@@ -325,6 +353,10 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 
 		GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
 		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, modelVector[i].m_tex);
+		glUniform1i(glGetUniformLocation(m_program, "model_xform"), 0);
 
 		glBindVertexArray(modelVector[i].m_VAO);
 		glDrawElements(GL_TRIANGLES, modelVector[i].m_numElements, GL_UNSIGNED_INT, (void*)0);
