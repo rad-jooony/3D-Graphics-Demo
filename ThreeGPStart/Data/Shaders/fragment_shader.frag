@@ -11,12 +11,14 @@
 
 // We want to output a 4 element colour (RGBA)
 out vec4 fragment_colour;
+uniform sampler2D model_tex;
 
 in vec3 varying_normal;
-
+in vec2 varying_texcoord;
 
 void main(void)
 {
+	vec3 tex_colour = texture(model_tex, varying_texcoord).rgb;
 	vec3 norm=normalize(varying_normal);
-	fragment_colour = vec4(norm, 1.0);	
+	fragment_colour = vec4(tex_colour, 1.0);	
 }

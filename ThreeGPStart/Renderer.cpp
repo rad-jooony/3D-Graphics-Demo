@@ -70,6 +70,41 @@ bool Renderer::CreateProgram()
 
 	return true;
 }
+
+std::vector<glm::vec3> skyboxVertices = 
+{
+	glm::vec3(-1.f, -1.f, 1.f),
+	glm::vec3(1.f, -1.f, 1.f),
+	glm::vec3(1.f, -1.f, -1.f),
+	glm::vec3(-1.f, -1.f, -1.f),
+	glm::vec3(-1.f, 1.f, 1.f),
+	glm::vec3(1.f, 1.f, 1.f),
+	glm::vec3(1.f, 1.f, -1.f),
+	glm::vec3(-1.f, 1.f, -1.f),
+};
+
+std::vector<GLuint> skyboxElements =
+{
+	// right
+	1,2,6,
+	6,5,1,
+	// left
+	0,4,7,
+	7,3,0,
+	// top
+	4,5,6,
+	6,7,4,
+	// bottom
+	0,3,2,
+	2,1,0,
+	// back
+	0,1,5,
+	5,4,0,
+	// front
+	3,7,6,
+	6,2,3
+};
+
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
 {
@@ -77,9 +112,39 @@ bool Renderer::InitialiseGeometry()
 	if (!CreateProgram())
 		return false;
 
-	// Helpers has an object for loading 3D geometry, supports most types
 
-	// E.g. Load in the jeep
+	/// skybox stuff
+	//GLuint positionsVBO;
+	//glGenBuffers(1, &positionsVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//GLuint elemEBO;
+	//glGenBuffers(1, &elemEBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//m_numElements = skyboxElements.size();
+
+	//glGenVertexArrays(1, &m_VAO);
+	//glBindVertexArray(m_VAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(
+	//	0, // attribute
+	//	3, // num of componants
+	//	GL_FLOAT, // type
+	//	GL_FALSE, // ignore this
+	//	0, // stride
+	//	(void*)0 // array buffer offset 
+	//);
+
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+
+	//glBindVertexArray(0);
+	
 	Helpers::ModelLoader loaderJeep;
 	if (!loaderJeep.LoadFromFile("Data\\Models\\Jeep\\jeep.obj"))
 		return false;
@@ -194,8 +259,8 @@ bool Renderer::InitialiseGeometry()
 		glm::vec3(1.5708, 0, 0), //propeller //angle is Radian conversion
 	};
 
-
 	Helpers::ImageLoader AquaPig1K;
+
 	for (int i = 0; i < AquaPigObjects.size(); i++)
 	{
 		Helpers::ModelLoader loaderPig;
@@ -296,8 +361,6 @@ bool Renderer::InitialiseGeometry()
 				glGenerateMipmap(GL_TEXTURE_2D);
 			}
 		}
-
-
 	}
 	return true;
 }
@@ -356,7 +419,7 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, modelVector[i].m_tex);
-		glUniform1i(glGetUniformLocation(m_program, "model_xform"), 0);
+		glUniform1i(glGetUniformLocation(m_program, "model_tex"), 0);
 
 		glBindVertexArray(modelVector[i].m_VAO);
 		glDrawElements(GL_TRIANGLES, modelVector[i].m_numElements, GL_UNSIGNED_INT, (void*)0);
