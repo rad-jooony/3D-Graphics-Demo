@@ -114,6 +114,16 @@ std::vector<std::string> skyboxFaces
 	"Mar_F.dds",//front
 	"Mar_B.dds"//back
 };
+
+std::vector<std::string> skyboxFacesPaths
+{
+	"Data\\Models\\Sky\\Mars\\Mar_R.dds",//right
+	"Data\\Models\\Sky\\Mars\\Mar_L.dds",//left
+	"Data\\Models\\Sky\\Mars\\Mar_U.dds",//top
+	"Data\\Models\\Sky\\Mars\\Mar_D.dds",//bot
+	"Data\\Models\\Sky\\Mars\\Mar_F.dds",//front
+	"Data\\Models\\Sky\\Mars\\Mar_B.dds"//back
+};
 ///https://learnopengl.com/Advanced-OpenGL/Cubemaps
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
@@ -124,56 +134,59 @@ bool Renderer::InitialiseGeometry()
 
 	Model skyBox;
 
-	//skyBox.m_translation = PLAYERHEAD;
-
-	GLuint positionsVBO;
-	glGenBuffers(1, &positionsVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	GLuint elemEBO;
-	glGenBuffers(1, &elemEBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	skyBox.m_numElements = skyboxElements.size();
-
-	glGenVertexArrays(1, &skyBox.m_VAO);
-	glBindVertexArray(skyBox.m_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0, // attribute
-		3, // num of componants
-		GL_FLOAT, // type
-		GL_FALSE, // ignore this
-		0, // stride
-		(void*)0 // array buffer offset 
-	);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-
-	glBindVertexArray(0);
+	glGenTextures(1, &skyBox.m_tex);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox.m_tex);
 
 	Helpers::ImageLoader sky;
 
-	if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K.png"))
+	for (int i = 0; i < skyboxFacesPaths.size(); i++)
 	{
-		glGenTextures(1, &skyBox.m_tex);
-		glBindTexture(GL_TEXTURE_2D, skyBox.m_tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sky.Width(), sky.Height(), 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, sky.GetData());
-		glGenerateMipmap(GL_TEXTURE_2D);
+		if (sky.Load(skyboxFacesPaths[i]))
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, sky.Width(), sky.Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, sky.GetData());
+		}
 	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	modelVector.push_back(skyBox);
+
+	//skyBox.m_translation = PLAYERHEAD;
+
+	//GLuint positionsVBO;
+	//glGenBuffers(1, &positionsVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//GLuint elemEBO;
+	//glGenBuffers(1, &elemEBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//skyBox.m_numElements = skyboxElements.size();
+
+	//glGenVertexArrays(1, &skyBox.m_VAO);
+	//glBindVertexArray(skyBox.m_VAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(
+	//	0, // attribute
+	//	3, // num of componants
+	//	GL_FLOAT, // type
+	//	GL_FALSE, // ignore this
+	//	0, // stride
+	//	(void*)0 // array buffer offset 
+	//);
+
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+
+	//glBindVertexArray(0);
+
 
 
 

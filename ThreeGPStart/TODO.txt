@@ -1,3 +1,8 @@
+FOR SKYBOX
+
+Last time I started working on the skybox using the cubemap link.
+I can create a new shader set by copying the CreateProgram function and changing the names
+
 TODO
 -----------
 next steps:
