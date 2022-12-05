@@ -18,12 +18,12 @@ layout (location=1) in vec3 vertex_normal;
 layout (location=2) in vec2 vertex_texcoord;
 
 out vec3 varying_normal;
-out vec2 varying_coord;
+out vec2 varying_texcoord;
 
 void main(void)
 {	
 	
 	varying_normal = vertex_normal;
-	varying_coord = vertex_texcoord;
+	varying_texcoord = vertex_texcoord;
 	gl_Position = combined_xform * model_xform * vec4(vertex_position, 1.0);
 }

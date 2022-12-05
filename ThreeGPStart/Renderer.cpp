@@ -71,7 +71,7 @@ bool Renderer::CreateProgram()
 	return true;
 }
 
-std::vector<glm::vec3> skyboxVertices = 
+std::vector<glm::vec3> skyboxVertices =
 {
 	glm::vec3(-1.f, -1.f, 1.f),
 	glm::vec3(1.f, -1.f, 1.f),
@@ -105,6 +105,16 @@ std::vector<GLuint> skyboxElements =
 	6,2,3
 };
 
+std::vector<std::string> skyboxFaces
+{
+	"Mar_R.dds",//right
+	"Mar_L.dds",//left
+	"Mar_U.dds",//top
+	"Mar_D.dds",//bot
+	"Mar_F.dds",//front
+	"Mar_B.dds"//back
+};
+///https://learnopengl.com/Advanced-OpenGL/Cubemaps
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
 {
@@ -112,39 +122,61 @@ bool Renderer::InitialiseGeometry()
 	if (!CreateProgram())
 		return false;
 
+	Model skyBox;
 
-	/// skybox stuff
-	//GLuint positionsVBO;
-	//glGenBuffers(1, &positionsVBO);
-	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//skyBox.m_translation = PLAYERHEAD;
 
-	//GLuint elemEBO;
-	//glGenBuffers(1, &elemEBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	GLuint positionsVBO;
+	glGenBuffers(1, &positionsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//m_numElements = skyboxElements.size();
+	GLuint elemEBO;
+	glGenBuffers(1, &elemEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	//glGenVertexArrays(1, &m_VAO);
-	//glBindVertexArray(m_VAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(
-	//	0, // attribute
-	//	3, // num of componants
-	//	GL_FLOAT, // type
-	//	GL_FALSE, // ignore this
-	//	0, // stride
-	//	(void*)0 // array buffer offset 
-	//);
+	skyBox.m_numElements = skyboxElements.size();
 
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+	glGenVertexArrays(1, &skyBox.m_VAO);
+	glBindVertexArray(skyBox.m_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(
+		0, // attribute
+		3, // num of componants
+		GL_FLOAT, // type
+		GL_FALSE, // ignore this
+		0, // stride
+		(void*)0 // array buffer offset 
+	);
 
-	//glBindVertexArray(0);
-	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+
+	glBindVertexArray(0);
+
+	Helpers::ImageLoader sky;
+
+	if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K.png"))
+	{
+		glGenTextures(1, &skyBox.m_tex);
+		glBindTexture(GL_TEXTURE_2D, skyBox.m_tex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sky.Width(), sky.Height(), 0,
+			GL_RGBA, GL_UNSIGNED_BYTE, sky.GetData());
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	modelVector.push_back(skyBox);
+
+
+
 	Helpers::ModelLoader loaderJeep;
 	if (!loaderJeep.LoadFromFile("Data\\Models\\Jeep\\jeep.obj"))
 		return false;
@@ -259,7 +291,7 @@ bool Renderer::InitialiseGeometry()
 		glm::vec3(1.5708, 0, 0), //propeller //angle is Radian conversion
 	};
 
-	Helpers::ImageLoader AquaPig1K;
+
 
 	for (int i = 0; i < AquaPigObjects.size(); i++)
 	{
@@ -299,9 +331,9 @@ bool Renderer::InitialiseGeometry()
 
 			GLuint texCoordsVBO;
 			glGenBuffers(1, &texCoordsVBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texCoordsVBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.uvCoords.size(), mesh.uvCoords.data(), GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, texCoordsVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * mesh.uvCoords.size(), mesh.uvCoords.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
 			newModel.m_numElements = mesh.elements.size();
@@ -333,7 +365,7 @@ bool Renderer::InitialiseGeometry()
 			glBindBuffer(GL_ARRAY_BUFFER, texCoordsVBO);
 			glEnableVertexAttribArray(2);
 			glVertexAttribPointer(
-				1, //attribute
+				2, //attribute
 				2, //num of componants
 				GL_FLOAT, //type
 				GL_FALSE, // ignore this
@@ -345,9 +377,9 @@ bool Renderer::InitialiseGeometry()
 
 			glBindVertexArray(0);
 
-			modelVector.push_back(newModel);
+			Helpers::ImageLoader AquaPig1K;
 
-			if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K"))
+			if (AquaPig1K.Load("Data\\Models\\AquaPig\\aqua_pig_1K.png"))
 			{
 				glGenTextures(1, &newModel.m_tex);
 				glBindTexture(GL_TEXTURE_2D, newModel.m_tex);
@@ -360,6 +392,7 @@ bool Renderer::InitialiseGeometry()
 					GL_RGBA, GL_UNSIGNED_BYTE, AquaPig1K.GetData());
 				glGenerateMipmap(GL_TEXTURE_2D);
 			}
+			modelVector.push_back(newModel);
 		}
 	}
 	return true;
@@ -402,27 +435,29 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	GLuint combined_xform_id = glGetUniformLocation(m_program, "combined_xform");
 	glUniformMatrix4fv(combined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
 
-	//Render the AquaPig
-	for (int i = 0; i < modelVector.size(); i++)
-	{
-		glm::mat4 model_xform = glm::mat4(1);
-		model_xform = glm::translate(model_xform, modelVector[i].m_translation);
-		model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.x, { 1 , 0 , 0 });
-		static float angle = 0; angle += 0.0001f;
-		if (i == 5)
+	this->
+
+		//Render the AquaPig
+		for (int i = 0; i < modelVector.size(); i++)
 		{
-			model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
+			glm::mat4 model_xform = glm::mat4(1);
+			model_xform = glm::translate(model_xform, modelVector[i].m_translation);
+			model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.x, { 1 , 0 , 0 });
+			static float angle = 0; angle += 0.0001f;
+			if (i == 5)
+			{
+				model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
+			}
+
+			GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
+			glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, modelVector[i].m_tex);
+			glUniform1i(glGetUniformLocation(m_program, "model_tex"), 0);
+
+			glBindVertexArray(modelVector[i].m_VAO);
+			glDrawElements(GL_TRIANGLES, modelVector[i].m_numElements, GL_UNSIGNED_INT, (void*)0);
 		}
-
-		GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
-		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, modelVector[i].m_tex);
-		glUniform1i(glGetUniformLocation(m_program, "model_tex"), 0);
-
-		glBindVertexArray(modelVector[i].m_VAO);
-		glDrawElements(GL_TRIANGLES, modelVector[i].m_numElements, GL_UNSIGNED_INT, (void*)0);
-	}
 }
 
