@@ -8,7 +8,6 @@
 	plugin to work (GLSL Langauage integration - highly recommended).
 */
 
-
 uniform mat4 combined_xform;
 uniform mat4 model_xform;
 

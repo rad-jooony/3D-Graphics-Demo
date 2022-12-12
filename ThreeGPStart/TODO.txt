@@ -1,7 +1,9 @@
-FOR SKYBOX
+WHAT I DID LAST TIME
 
-Last time I started working on the skybox using the cubemap link.
-I can create a new shader set by copying the CreateProgram function and changing the names
+I made the skybox, currently ive mishmashed the render header and the skybox model, these should be seperate so im not using the same vector for the skypig model
+currently ive made a new Model called skyBoxModel in order to circumvent re-organising the program. This wont alst long however. I should get to tidying up ASAP.
+
+
 
 TODO
 -----------

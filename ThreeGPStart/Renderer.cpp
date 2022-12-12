@@ -71,16 +71,87 @@ bool Renderer::CreateProgram()
 	return true;
 }
 
+bool Renderer::CreateProgramSkybox()
+{
+	if (m_programSkybox)
+		glDeleteProgram(m_programSkybox);
+
+	// Create a new program (returns a unqiue id)
+	m_programSkybox = glCreateProgram();
+
+	// Load and create vertex and fragment shaders
+	GLuint vertex_shader_skybox{ Helpers::LoadAndCompileShader(GL_VERTEX_SHADER, "Data/Shaders/vertex_shader_skybox.vert") };
+	GLuint fragment_shader_skybox{ Helpers::LoadAndCompileShader(GL_FRAGMENT_SHADER, "Data/Shaders/fragment_shader_skybox.frag") };
+	if (vertex_shader_skybox == 0 || fragment_shader_skybox == 0)
+		return false;
+
+	// Attach the vertex shader to this program (copies it)
+	glAttachShader(m_programSkybox, vertex_shader_skybox);
+
+	// The attibute location 0 maps to the input stream "vertex_position" in the vertex shader
+	// Not needed if you use (location=0) in the vertex shader itself
+	//glBindAttribLocation(m_programSkybox, 0, "vertex_position");
+
+	// Attach the fragment shader (copies it)
+	glAttachShader(m_programSkybox, fragment_shader_skybox);
+
+	// Done with the originals of these as we have made copies
+	glDeleteShader(vertex_shader_skybox);
+	glDeleteShader(fragment_shader_skybox);
+
+	// Link the shaders, checking for errors
+	if (!Helpers::LinkProgramShaders(m_programSkybox))
+		return false;
+
+	return true;
+}
+
+
 std::vector<glm::vec3> skyboxVertices =
 {
-	glm::vec3(-1.f, -1.f, 1.f),
-	glm::vec3(1.f, -1.f, 1.f),
-	glm::vec3(1.f, -1.f, -1.f),
-	glm::vec3(-1.f, -1.f, -1.f),
-	glm::vec3(-1.f, 1.f, 1.f),
-	glm::vec3(1.f, 1.f, 1.f),
-	glm::vec3(1.f, 1.f, -1.f),
-	glm::vec3(-1.f, 1.f, -1.f),
+	glm::vec3(-1.0f,  1.0f, -1.0f),
+	glm::vec3(-1.0f, -1.0f, -1.0f),
+	glm::vec3(1.0f, -1.0f, -1.0f),
+	glm::vec3(1.0f, -1.0f, -1.0f),
+	glm::vec3(1.0f,  1.0f, -1.0f),
+	glm::vec3(-1.0f,  1.0f, -1.0f),
+
+	glm::vec3(-1.0f, -1.0f,  1.0f),
+	glm::vec3(-1.0f, -1.0f, -1.0f),
+	glm::vec3(-1.0f,  1.0f, -1.0f),
+	glm::vec3(-1.0f,  1.0f, -1.0f),
+	glm::vec3(-1.0f,  1.0f,  1.0f),
+	glm::vec3(-1.0f, -1.0f,  1.0f),
+
+	glm::vec3(1.0f, -1.0f, -1.0f),
+	glm::vec3(1.0f, -1.0f,  1.0f),
+	glm::vec3(1.0f,  1.0f,  1.0f),
+	glm::vec3(1.0f,  1.0f,  1.0f),
+	glm::vec3(1.0f,  1.0f, -1.0f),
+	glm::vec3(1.0f, -1.0f, -1.0),
+
+	glm::vec3(-1.0f, -1.0f,  1.0f),
+	glm::vec3(-1.0f,  1.0f,  1.0f),
+	glm::vec3(1.0f,  1.0f,  1.0f),
+	glm::vec3(1.0f,  1.0f,  1.0f),
+	glm::vec3(1.0f, -1.0f,  1.0f),
+	glm::vec3(-1.0f, -1.0f,  1.0f),
+
+	glm::vec3(-1.0f,  1.0f, -1.0f),
+	glm::vec3(1.0f,  1.0f, -1.0f),
+	glm::vec3(1.0f,  1.0f,  1.0f),
+	glm::vec3(1.0f,  1.0f,  1.0f),
+	glm::vec3(-1.0f,  1.0f,  1.0f),
+	glm::vec3(-1.0f, 1.0f, -1.0f),
+
+	glm::vec3(-1.0f, -1.0f, -1.0f),
+	glm::vec3(-1.0f, -1.0f,  1.0f),
+	glm::vec3(1.0f, -1.0f, -1.0f),
+	glm::vec3(1.0f, -1.0f, -1.0f),
+	glm::vec3(-1.0f, -1.0f,  1.0f),
+	glm::vec3(1.0f, -1.0f,  1.0f)
+
+
 };
 
 std::vector<GLuint> skyboxElements =
@@ -128,8 +199,7 @@ std::vector<std::string> skyboxFacesPaths
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
 {
-	// Load and compile shaders into m_program
-	if (!CreateProgram())
+	if (!CreateProgramSkybox())
 		return false;
 
 	Model skyBox;
@@ -139,11 +209,46 @@ bool Renderer::InitialiseGeometry()
 
 	Helpers::ImageLoader sky;
 
+	GLuint positionsVBO;
+	glGenBuffers(1, &positionsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	GLuint elemEBO;
+	glGenBuffers(1, &elemEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	skyBox.m_numElements = skyboxElements.size();
+
+	glGenVertexArrays(1, &skyBox.m_VAO);
+	glBindVertexArray(skyBox.m_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(
+		0, // attribute
+		3, // num of componants
+		GL_FLOAT, // type
+		GL_FALSE, // ignore this
+		0, // stride
+		(void*)0 // array buffer offset 
+	);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+
+	glBindVertexArray(0);
+
 	for (int i = 0; i < skyboxFacesPaths.size(); i++)
 	{
 		if (sky.Load(skyboxFacesPaths[i]))
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, sky.Width(), sky.Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, sky.GetData());
+		}
+		else
+		{
+			std::cout << "failed to load at path: " << skyboxFacesPaths[i] << std::endl;
 		}
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -152,44 +257,11 @@ bool Renderer::InitialiseGeometry()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	modelVector.push_back(skyBox);
+	skyBoxModel = skyBox; //this is temperary (see TODO)
 
-	//skyBox.m_translation = PLAYERHEAD;
-
-	//GLuint positionsVBO;
-	//glGenBuffers(1, &positionsVBO);
-	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * skyboxVertices.size(), skyboxVertices.data(), GL_STATIC_DRAW);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	//GLuint elemEBO;
-	//glGenBuffers(1, &elemEBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * skyboxElements.size(), skyboxElements.data(), GL_STATIC_DRAW);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	//skyBox.m_numElements = skyboxElements.size();
-
-	//glGenVertexArrays(1, &skyBox.m_VAO);
-	//glBindVertexArray(skyBox.m_VAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(
-	//	0, // attribute
-	//	3, // num of componants
-	//	GL_FLOAT, // type
-	//	GL_FALSE, // ignore this
-	//	0, // stride
-	//	(void*)0 // array buffer offset 
-	//);
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-
-	//glBindVertexArray(0);
-
-
-
-
+	// Load and compile shaders into m_program
+	if (!CreateProgram())
+		return false;
 	Helpers::ModelLoader loaderJeep;
 	if (!loaderJeep.LoadFromFile("Data\\Models\\Jeep\\jeep.obj"))
 		return false;
@@ -442,35 +514,55 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glm::mat4 view_xform = glm::lookAt(camera.GetPosition(), camera.GetPosition() + camera.GetLookVector(), camera.GetUpVector());
 	glm::mat4 combined_xform = projection_xform * view_xform;
 
+
+	//This is the skybox section of the render function
+
+	glDepthMask(GL_FALSE);
+	glUseProgram(m_programSkybox);
+
+	glm::mat4 skyboxMatrix = glm::mat4(1.0f); // Initialize skybox matrix to identity matrix
+	glm::vec3 cameraPos = camera.GetPosition();
+
+	// Translate the skybox to the camera position
+	skyboxMatrix = glm::translate(skyboxMatrix, cameraPos);
+
+	GLuint combined_xform_id_skybox = glGetUniformLocation(m_programSkybox, "boxPos");
+	glUniformMatrix4fv(combined_xform_id_skybox, 1, GL_FALSE, glm::value_ptr(skyboxMatrix));
+
+	glBindVertexArray(skyBoxModel.m_VAO);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxModel.m_tex);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDepthMask(GL_TRUE);
+
 	glUseProgram(m_program);
 
 	// Send the combined matrix to the shader in a uniform
 	GLuint combined_xform_id = glGetUniformLocation(m_program, "combined_xform");
 	glUniformMatrix4fv(combined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
 
-	this->
-
-		//Render the AquaPig
-		for (int i = 0; i < modelVector.size(); i++)
+	//Render the AquaPig
+	for (int i = 0; i < modelVector.size(); i++)
+	{
+		glm::mat4 model_xform = glm::mat4(1);
+		model_xform = glm::translate(model_xform, modelVector[i].m_translation);
+		model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.x, { 1 , 0 , 0 });
+		static float angle = 0; angle += 0.0001f;
+		if (i == 5)
 		{
-			glm::mat4 model_xform = glm::mat4(1);
-			model_xform = glm::translate(model_xform, modelVector[i].m_translation);
-			model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.x, { 1 , 0 , 0 });
-			static float angle = 0; angle += 0.0001f;
-			if (i == 5)
-			{
-				model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
-			}
-
-			GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
-			glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, modelVector[i].m_tex);
-			glUniform1i(glGetUniformLocation(m_program, "model_tex"), 0);
-
-			glBindVertexArray(modelVector[i].m_VAO);
-			glDrawElements(GL_TRIANGLES, modelVector[i].m_numElements, GL_UNSIGNED_INT, (void*)0);
+			model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
 		}
+
+		GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
+		glUniformMatrix4fv(model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, modelVector[i].m_tex);
+		glUniform1i(glGetUniformLocation(m_program, "model_tex"), 0);
+
+		glBindVertexArray(modelVector[i].m_VAO);
+		glDrawElements(GL_TRIANGLES, modelVector[i].m_numElements, GL_UNSIGNED_INT, (void*)0);
+	}
+
+
 }
 
