@@ -526,13 +526,20 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	// Translate the skybox to the camera position
 	skyboxMatrix = glm::translate(skyboxMatrix, cameraPos);
 
-	GLuint combined_xform_id_skybox = glGetUniformLocation(m_programSkybox, "boxPos");
-	glUniformMatrix4fv(combined_xform_id_skybox, 1, GL_FALSE, glm::value_ptr(skyboxMatrix));
+	GLuint combined_xform_skybox = glGetUniformLocation(m_programSkybox, "boxPos");
+	glUniformMatrix4fv(combined_xform_skybox, 1, GL_FALSE, glm::value_ptr(view_xform));
+
+	GLuint combined_xform_skybox_id = glGetUniformLocation(m_programSkybox, "combinedProjView");
+	glUniformMatrix4fv(combined_xform_skybox_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
+
 
 	glBindVertexArray(skyBoxModel.m_VAO);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxModel.m_tex);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDepthMask(GL_TRUE);
+
+
+	// this is the model loading section of the render function
 
 	glUseProgram(m_program);
 
