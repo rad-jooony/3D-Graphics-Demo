@@ -15,9 +15,9 @@ struct Model
 
 	GLuint m_tex{ 0 };
 
-	glm::vec3 m_translation;
+	glm::vec3 m_translation{ 0 };
 
-	glm::vec3 m_rotation;
+	glm::vec3 m_rotation{ 0 };
 };
 
 class Renderer

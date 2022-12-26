@@ -18,6 +18,12 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{1ec66d55-efbd-48f7-bb4a-802ab34ff67d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Items">
+      <UniqueIdentifier>{bd00a1c0-02f8-4bf5-8900-69e5e88ce08e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Items">
+      <UniqueIdentifier>{b0fc5f51-c70c-4940-bb13-8a94117b7607}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -68,6 +74,15 @@
     <ClInclude Include="External\IMGUI\imstb_truetype.h">
       <Filter>External</Filter>
     </ClInclude>
+    <ClInclude Include="AquaPig.h">
+      <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -111,6 +126,15 @@
     </ClCompile>
     <ClCompile Include="External\IMGUI\imgui_widgets.cpp">
       <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="AquaPig.cpp">
+      <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

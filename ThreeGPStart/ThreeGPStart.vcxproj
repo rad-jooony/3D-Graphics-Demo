@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AquaPig.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ExternalLibraryHeaders.h" />
     <ClInclude Include="External\IMGUI\imconfig.h" />
@@ -104,11 +105,14 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="ImageLoader.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="RedirectStandardOutput.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Simulation.h" />
+    <ClInclude Include="Skybox.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AquaPig.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="External\GLEW\glew.c" />
     <ClCompile Include="External\IMGUI\imgui.cpp" />
@@ -121,8 +125,10 @@
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Simulation.cpp" />
+    <ClCompile Include="Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\Shaders\fragment_shader.frag" />

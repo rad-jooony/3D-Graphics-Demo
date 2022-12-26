@@ -1,9 +1,8 @@
 WHAT I DID LAST TIME
 
-I made the skybox, currently ive mishmashed the render header and the skybox model, these should be seperate so im not using the same vector for the skypig model
-currently ive made a new Model called skyBoxModel in order to circumvent re-organising the program. This wont alst long however. I should get to tidying up ASAP.
-
-
+Followed a cool tutorial on skyboxes 
+https://www.youtube.com/watch?v=8sVvxeKI9Pk&t=74s
+debug, see if anything is comeing through null, check spelling errors etc.
 
 TODO
 -----------
