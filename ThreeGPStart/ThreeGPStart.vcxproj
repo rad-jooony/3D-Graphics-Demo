@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClInclude Include="AquaPig.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="ExternalLibraryHeaders.h" />
     <ClInclude Include="External\IMGUI\imconfig.h" />
     <ClInclude Include="External\IMGUI\imgui.h" />
@@ -110,10 +111,12 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Simulation.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AquaPig.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="External\GLEW\glew.c" />
     <ClCompile Include="External\IMGUI\imgui.cpp" />
     <ClCompile Include="External\IMGUI\imgui_draw.cpp" />
@@ -129,6 +132,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Simulation.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\Shaders\fragment_shader.frag" />
@@ -140,6 +144,7 @@
     <Natvis Include="External\IMGUI\imgui.natvis" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="jeep.txt" />
     <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

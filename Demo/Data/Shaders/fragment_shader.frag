@@ -15,10 +15,21 @@ uniform sampler2D model_tex;
 
 in vec3 varying_normal;
 in vec2 varying_texcoord;
+in vec3 varying_position;
 
 void main(void)
 {
 	vec3 tex_colour = texture(model_tex, varying_texcoord).rgb;
+
 	vec3 norm=normalize(varying_normal);
+	vec3 pos=varying_position;
+
+	vec3 light_direction = vec3(-0.5, -0.5, 0);
+	vec3 light_norm = normalize(-light_direction);
+	
+	float intensity = max(0,dot(light_norm, norm));
+
+	tex_colour = intensity * tex_colour;
+
 	fragment_colour = vec4(tex_colour, 1.0);	
 }

@@ -1,0 +1,86 @@
+
+	Helpers::ModelLoader loaderJeep;
+	if (!loaderJeep.LoadFromFile("Data\\Models\\Jeep\\jeep.obj"))
+		return false;
+
+	for (const Helpers::Mesh& mesh : loaderJeep.GetMeshVector())
+	{
+		// We can extract from the mesh via:
+		//mesh.vertices  - a vector of glm::vec3 (3 floats) giving the position of each vertex
+		//mesh.elements - a vector of unsigned ints defining which vertices make up each triangle
+
+
+		// create VBO for the vertices and a EBO for the elements
+		GLuint verticesVBO;
+		glGenBuffers(1, &verticesVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.vertices.size(), mesh.vertices.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		GLuint normalsVBO;
+		glGenBuffers(1, &normalsVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.normals.size(), mesh.normals.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		GLuint elemEBO;
+		glGenBuffers(1, &elemEBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.elements.size(), mesh.elements.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		// create a VBA to wrap everything and specify locations in the shaders
+
+		glGenVertexArrays(1, &m_VAO);
+		glBindVertexArray(m_VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(
+			0, //attribute
+			3, //num of componants
+			GL_FLOAT, //type
+			GL_FALSE, // ignore this
+			0, // stride
+			(void*)0 // array buffer offset
+		);
+
+		glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(
+			1, //attribute
+			3, //num of componants
+			GL_FLOAT, //type
+			GL_FALSE, // ignore this
+			0, // stride
+			(void*)0 // array buffer offset
+		);
+
+		m_numElements = mesh.elements.size();
+
+		glGenVertexArrays(1, &m_VAO);
+		glBindVertexArray(m_VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(
+			0, //attribute
+			3, //num of componants
+			GL_FLOAT, //type
+			GL_FALSE, // ignore this
+			0, // stride
+			(void*)0 // array buffer offset
+		);
+
+		glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(
+			1, //attribute
+			3, //num of componants
+			GL_FLOAT, //type
+			GL_FALSE, // ignore this
+			0, // stride
+			(void*)0 // array buffer offset
+		);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
+
+		glBindVertexArray(0);
+	}

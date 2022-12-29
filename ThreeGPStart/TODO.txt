@@ -1,25 +1,19 @@
 WHAT I DID LAST TIME
 
-Followed a cool tutorial on skyboxes 
-https://www.youtube.com/watch?v=8sVvxeKI9Pk&t=74s
-debug, see if anything is comeing through null, check spelling errors etc.
+Last time, i got lighting working and pluged in my cube.
+the cube doesnt load textures onto itself (maybe, lighting might also be playing a roll in it not working)
+ask about whats wrong with my skybox. 
+My heightmap throws an error (sadge)
+
 
 TODO
 -----------
 next steps:
 
-Create the gridded terrain mesh
-OR
-Create Skybox
+ask about the issues in my program
 
 ------------
 to do for hand in:
-
-Rednering a gridded mesh for terrain
-lighting and shading
-skybox
-
-Code Structure
 
 ----
 Done:
@@ -27,3 +21,6 @@ Done:
 Creating and redering a cube
 Rendering a 3D model in heirarchy
 rotation
+skybox (kinda)
+terrain (kinda)
+cube (kinda)

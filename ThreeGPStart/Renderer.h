@@ -11,6 +11,8 @@ struct Model
 {
 	GLuint m_VAO{ 0 };
 
+	GLuint m_VAO2{ 0 };
+
 	GLuint m_numElements{ 0 };
 
 	GLuint m_tex{ 0 };

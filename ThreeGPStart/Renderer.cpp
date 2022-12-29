@@ -3,6 +3,8 @@
 #include "ImageLoader.h"
 #include "Skybox.h"
 #include "AquaPig.h"
+#include "Terrain.h"
+#include "Cube.h"
 
 Renderer::Renderer()
 {
@@ -121,98 +123,19 @@ bool Renderer::InitialiseGeometry()
 	// Load and compile shaders into m_program
 	if (!CreateProgram())
 		return false;
-	Helpers::ModelLoader loaderJeep;
-	if (!loaderJeep.LoadFromFile("Data\\Models\\Jeep\\jeep.obj"))
-		return false;
-	// Now we can loop through all the mesh in the loaded model:
-	/*
-	for (const Helpers::Mesh& mesh : loaderJeep.GetMeshVector())
-	{
-		// We can extract from the mesh via:
-		//mesh.vertices  - a vector of glm::vec3 (3 floats) giving the position of each vertex
-		//mesh.elements - a vector of unsigned ints defining which vertices make up each triangle
-
-
-		// create VBO for the vertices and a EBO for the elements
-		GLuint verticesVBO;
-		glGenBuffers(1, &verticesVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.vertices.size(), mesh.vertices.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		GLuint normalsVBO;
-		glGenBuffers(1, &normalsVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.normals.size(), mesh.normals.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		GLuint elemEBO;
-		glGenBuffers(1, &elemEBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.elements.size(), mesh.elements.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		// create a VBA to wrap everything and specify locations in the shaders
-
-		glGenVertexArrays(1, &m_VAO);
-		glBindVertexArray(m_VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(
-			0, //attribute
-			3, //num of componants
-			GL_FLOAT, //type
-			GL_FALSE, // ignore this
-			0, // stride
-			(void*)0 // array buffer offset
-		);
-
-		glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(
-			1, //attribute
-			3, //num of componants
-			GL_FLOAT, //type
-			GL_FALSE, // ignore this
-			0, // stride
-			(void*)0 // array buffer offset
-		);
-
-		m_numElements = mesh.elements.size();
-
-		glGenVertexArrays(1, &m_VAO);
-		glBindVertexArray(m_VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(
-			0, //attribute
-			3, //num of componants
-			GL_FLOAT, //type
-			GL_FALSE, // ignore this
-			0, // stride
-			(void*)0 // array buffer offset
-		);
-
-		glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(
-			1, //attribute
-			3, //num of componants
-			GL_FLOAT, //type
-			GL_FALSE, // ignore this
-			0, // stride
-			(void*)0 // array buffer offset
-		);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemEBO);
-
-		glBindVertexArray(0);
-	}
-	*/
 
 	AquaPig aquaPig;
 	for (int i = 0; i < aquaPig.AquaPigObjects.size(); i++)
+	{
+		aquaPig.AquaPigTranslation[i] += glm::vec3(20, 20, 20); // change position
 		modelVector.push_back(aquaPig.makeAquaPig(i));
+	}
+	Terrain terrain;
+	modelVector.push_back(terrain.makeTerrain(10, 10)); //values are the terrain size (no. of vectors in each direction)
 
+	Cube cube;
+	cube.translation += glm::vec3(0, 20, 0);
+	modelVector.push_back(cube.makeCube());
 	return true;
 }
 
@@ -257,9 +180,8 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glm::mat4 combinedSkyTransform = projection_xform * skyboxView;
 	glUniformMatrix4fv(glGetUniformLocation(m_programSkybox, "combinedSkyTransform"), 1, GL_FALSE, glm::value_ptr(combinedSkyTransform));
 
-	glm::mat4 skyBoxTransform = glm::mat4(1); //c
-	glUniformMatrix4fv(glGetUniformLocation(m_programSkybox, "boxPos"), 1, GL_FALSE, glm::value_ptr(skyBoxTransform));
-
+	glm::mat4 model = glm::mat4(1);
+	glUniformMatrix4fv(glGetUniformLocation(m_programSkybox, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 
 	glBindVertexArray(skyBoxModel.m_VAO);
@@ -269,7 +191,6 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glBindVertexArray(0);
 
 	glDepthMask(GL_TRUE);
-
 
 	// this is the model loading section of the render function
 
@@ -285,10 +206,17 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 		glm::mat4 model_xform = glm::mat4(1);
 		model_xform = glm::translate(model_xform, modelVector[i].m_translation);
 		model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.x, { 1 , 0 , 0 });
+		model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.y, { 0 , 1 , 0 });
+		model_xform = glm::rotate(model_xform, modelVector[i].m_rotation.z, { 0 , 0 , 1 });
 		static float angle = 0; angle += 0.0001f;
-		if (i == 5)
+		if (modelVector[i].m_rotation.x != 0) //add more if needed
 		{
 			model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
+
+		}
+		if (modelVector[i].m_rotation.y != 0)
+		{
+			//	model_xform = glm::rotate(model_xform, angle, { 0 , 1 , 0 });
 		}
 
 		GLuint model_xform_id = glGetUniformLocation(m_program, "model_xform");
