@@ -68,37 +68,32 @@ Model Terrain::makeTerrain(int X, int Z)
 
 	Model terrain;
 
-	//Helpers::ImageLoader terrainmap;
-	//if (terrainmap.Load("Data\\Textures\\dirt.dds"))
-	//{
-	//	float vertXtoImage = (float)terrainmap.Width() / X;
-	//	float vertZtoImage = (float)terrainmap.Width() / Z;
-	//	BYTE* data = terrainmap.GetData();
-	//	for (int i = 0; i < Z; i++)
-	//	{
-	//		for (int j = 0; j < X; j++)
-	//		{
-	//			int index = ((i * X) + j);
-	//			int imageX = vertXtoImage * X;
-	//			int imageZ = vertZtoImage * Z;
+	Helpers::ImageLoader terrainmap;
+	if (terrainmap.Load("Data\\Heightmaps\\curvy.gif"))
+	{
+		float vertXtoMap = (float)terrainmap.Width() / X;
+		float vertZtoMap = (float)terrainmap.Width() / Z;
+		GLubyte* data = terrainmap.GetData();
 
-	//			size_t offset = (((size_t)imageX + (size_t)imageZ) * terrainmap.Width()) * 4; //the colour in colour channel (red)
+		int mapX;
+		int mapZ;
+		for (int z = 0; z < Z; z++)
+		{
+			for (int x = 0; x < X; x++)
+			{
+				int index = ((z * X) + x);
+				mapX = vertXtoMap * x;
+				mapZ = vertZtoMap * z;
 
-	//			BYTE heightData = data[offset];
+				size_t offset = ((size_t)mapX + (size_t)mapZ * terrainmap.Width()) * 4; //the colour in colour channel (red)
 
-	//			float heightVal = (float)heightData;
-	//			verts[index].y = heightVal;
-	//		}
-	//	}
-	//}
+				BYTE heightData = data[offset];
 
-
-
-	//SetVar below to add noise
-	//step 1 - make rand number
-	//step 2 - use number to move Y
-
-	bool amplify = false; //make noise prominant
+				float heightVal = (float)heightData / 10;
+				verts[index].y = heightVal;
+			}
+		}
+	}
 
 	if (noiseOn)
 	{
@@ -113,7 +108,7 @@ Model Terrain::makeTerrain(int X, int Z)
 
 				myVec.y = myVec.y + noise;
 
-				verts[index].y =+ myVec.y;
+				verts[index].y = +myVec.y;
 				index++;
 			}
 		}

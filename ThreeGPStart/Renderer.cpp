@@ -131,7 +131,7 @@ bool Renderer::InitialiseGeometry()
 		modelVector.push_back(aquaPig.makeAquaPig(i));
 	}
 	Terrain terrain;
-	modelVector.push_back(terrain.makeTerrain(10, 10)); //values are the terrain size (no. of vectors in each direction)
+	modelVector.push_back(terrain.makeTerrain(40, 40)); //values are the terrain size (no. of vectors in each direction)
 
 	Cube cube;
 	cube.translation += glm::vec3(0, 20, 0);

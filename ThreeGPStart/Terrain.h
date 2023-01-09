@@ -13,8 +13,8 @@ public:
 	std::vector<glm::vec2> texCoords;
 	std::vector<GLuint> elements;
 
-	glm::vec3 minValues{ -10,-10,-10 };
-	glm::vec3 maxValues{ 10,10,10 };
+	glm::vec3 minValues{ -1,-1,-1 };
+	glm::vec3 maxValues{ 1,1,1 };
 
 	Model makeTerrain(int X, int Z);
 
