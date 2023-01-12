@@ -27,9 +27,11 @@ void main(void)
 	vec3 light_direction = vec3(-0.5, -0.5, 0);
 	vec3 light_norm = normalize(-light_direction);
 	
+	vec3 ambient_light= vec3(0.1,0.1,0.1) * tex_colour;
+
 	float intensity = max(0,dot(light_norm, norm));
 
-	tex_colour = intensity * tex_colour;
+	tex_colour = intensity * tex_colour + ambient_light;
 
 	fragment_colour = vec4(tex_colour, 1.0);	
 }

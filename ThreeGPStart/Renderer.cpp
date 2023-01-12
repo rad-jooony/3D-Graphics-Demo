@@ -111,6 +111,41 @@ bool Renderer::CreateProgramSkybox()
 	return true;
 }
 
+bool Renderer::CreateProgramCube()
+{
+	if (m_programCube)
+		glDeleteProgram(m_programCube);
+
+	// Create a new program (returns a unqiue id)
+	m_programCube = glCreateProgram();
+
+	// Load and create vertex and fragment shaders
+	GLuint vertex_shader_cube{ Helpers::LoadAndCompileShader(GL_VERTEX_SHADER, "Data/Shaders/vertex_shader_cube.vert") };
+	GLuint fragment_shader_cube{ Helpers::LoadAndCompileShader(GL_FRAGMENT_SHADER, "Data/Shaders/fragment_shader_cube.frag") };
+	if (vertex_shader_cube == 0 || fragment_shader_cube == 0)
+		return false;
+
+	// Attach the vertex shader to this program (copies it)
+	glAttachShader(m_programCube, vertex_shader_cube);
+
+	// The attibute location 0 maps to the input stream "vertex_position" in the vertex shader
+	// Not needed if you use (location=0) in the vertex shader itself
+	//glBindAttribLocation(m_programSkybox, 0, "vertex_position");
+
+	// Attach the fragment shader (copies it)
+	glAttachShader(m_programCube, fragment_shader_cube);
+
+	// Done with the originals of these as we have made copies
+	glDeleteShader(vertex_shader_cube);
+	glDeleteShader(fragment_shader_cube);
+
+	// Link the shaders, checking for errors
+	if (!Helpers::LinkProgramShaders(m_programCube))
+		return false;
+
+	return true;
+}
+
 ///https://learnopengl.com/Advanced-OpenGL/Cubemaps
 // Load / create geometry into OpenGL buffers	
 bool Renderer::InitialiseGeometry()
@@ -133,9 +168,11 @@ bool Renderer::InitialiseGeometry()
 	Terrain terrain;
 	modelVector.push_back(terrain.makeTerrain(40, 40)); //values are the terrain size (no. of vectors in each direction)
 
+	if (!CreateProgramCube())
+		return false;
 	Cube cube;
 	cube.translation += glm::vec3(0, 20, 0);
-	modelVector.push_back(cube.makeCube());
+	cubeModel = cube.makeCube();
 	return true;
 }
 
@@ -174,15 +211,15 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	//This is the skybox section of the render function
 
 	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 	glUseProgram(m_programSkybox);
 
-	glm::mat4 skyboxView = glm::mat4(glm::mat3(view_xform));// Translate the skybox to the camera position
+	glm::mat4 skyboxView = glm::mat4(glm::mat3(view_xform));
 	glm::mat4 combinedSkyTransform = projection_xform * skyboxView;
 	glUniformMatrix4fv(glGetUniformLocation(m_programSkybox, "combinedSkyTransform"), 1, GL_FALSE, glm::value_ptr(combinedSkyTransform));
 
 	glm::mat4 model = glm::mat4(1);
 	glUniformMatrix4fv(glGetUniformLocation(m_programSkybox, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
 
 	glBindVertexArray(skyBoxModel.m_VAO);
 	glActiveTexture(GL_TEXTURE0);
@@ -191,9 +228,42 @@ void Renderer::Render(const Helpers::Camera& camera, float deltaTime)
 	glBindVertexArray(0);
 
 	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+
+	// this is the cube section
+
+	glUseProgram(m_programCube);
+
+	// Send the combined matrix to the shader in a uniform
+	GLuint cube_combined_xform_id = glGetUniformLocation(m_programCube, "combined_xform");
+	glUniformMatrix4fv(cube_combined_xform_id, 1, GL_FALSE, glm::value_ptr(combined_xform));
+
+	glm::mat4 model_xform = glm::mat4(1);
+
+	static float angle = 0;
+	static bool rotateY = true;
+
+	if (rotateY) // Rotate around y axis		
+		model_xform = glm::rotate(model_xform, angle, glm::vec3{ 0 ,1,0 });
+	else // Rotate around x axis		
+		model_xform = glm::rotate(model_xform, angle, glm::vec3{ 1 ,0,0 });
+
+	angle += 0.001f;
+	if (angle > glm::two_pi<float>())
+	{
+		angle = 0;
+		rotateY = !rotateY;
+	}
+	// Send the model matrix to the shader in a uniform
+	GLuint cube_model_xform_id = glGetUniformLocation(m_programCube, "model_xform");
+	glUniformMatrix4fv(cube_model_xform_id, 1, GL_FALSE, glm::value_ptr(model_xform));
+
+	// Bind our VAO and render
+	glBindVertexArray(cubeModel.m_VAO);
+	glDrawElements(GL_TRIANGLES, cubeModel.m_numElements, GL_UNSIGNED_INT, (void*)0);
+	glBindVertexArray(0);
 
 	// this is the model loading section of the render function
-
 	glUseProgram(m_program);
 
 	// Send the combined matrix to the shader in a uniform

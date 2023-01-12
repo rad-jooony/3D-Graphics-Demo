@@ -11,5 +11,5 @@ out vec3 texCoords;
 void main()
 {
     texCoords = boxPos;
-    gl_Position = combinedSkyTransform * model * vec4(boxPos, 1.0);
+    gl_Position = combinedSkyTransform * model * vec4(boxPos, 1.0);   
 }

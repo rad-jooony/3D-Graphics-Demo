@@ -89,7 +89,7 @@ Model Terrain::makeTerrain(int X, int Z)
 
 				BYTE heightData = data[offset];
 
-				float heightVal = (float)heightData / 10;
+				float heightVal = (float)heightData / 5;
 				verts[index].y = heightVal;
 			}
 		}

@@ -27,10 +27,13 @@ class Renderer
 private:
 	// Program object - to host shaders
 	GLuint m_program{ 0 };
-	GLuint m_programSkybox{ 0 }; // this is temperary (see TODO)
+	GLuint m_programSkybox{ 0 };
+	GLuint m_programCube{ 0 };
+
 
 	Model skyBoxModel;
 	std::vector<Model> modelVector;
+	Model cubeModel;
 
 	bool m_wireframe{ false };
 	bool m_cullFace{ true };	
@@ -43,7 +46,8 @@ public:
 
 	// Create the program. This is the compiled shaders.
 	bool CreateProgram();
-	bool CreateProgramSkybox(); // this is temperary (see TODO)
+	bool CreateProgramSkybox();
+	bool CreateProgramCube();
 
 	// Create and / or load geometry, this is like 'level load'
 	bool InitialiseGeometry();

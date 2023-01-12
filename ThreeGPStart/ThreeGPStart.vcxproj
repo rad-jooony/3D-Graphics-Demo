@@ -136,8 +136,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\Shaders\fragment_shader.frag" />
+    <None Include="Data\Shaders\fragment_shader_cube.frag" />
     <None Include="Data\Shaders\fragment_shader_skybox.frag" />
     <None Include="Data\Shaders\vertex_shader.vert" />
+    <None Include="Data\Shaders\vertex_shader_cube.vert" />
     <None Include="Data\Shaders\vertex_shader_skybox.vert" />
   </ItemGroup>
   <ItemGroup>

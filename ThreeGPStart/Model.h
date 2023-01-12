@@ -9,6 +9,8 @@ struct Model //currently not used
 
 	GLuint m_numElements{ 0 };
 
+	GLuint m_colours{ 0 };
+
 	GLuint m_tex{ 0 };
 
 	glm::vec3 m_translation;
